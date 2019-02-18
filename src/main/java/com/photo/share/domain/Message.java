@@ -3,6 +3,9 @@ package com.photo.share.domain;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * Data model for rest operation status.
+ */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Message {
 

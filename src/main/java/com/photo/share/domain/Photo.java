@@ -6,10 +6,11 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
+/**
+ * Data model for photo entity type.
+ */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Entity
 @Table(name = "PHOTO")

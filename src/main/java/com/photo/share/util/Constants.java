@@ -1,5 +1,8 @@
 package com.photo.share.util;
 
+/**
+ * Application constants.
+ */
 public class Constants {
 
     public static final String TAGS = "tags";

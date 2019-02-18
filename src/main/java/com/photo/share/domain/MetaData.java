@@ -4,8 +4,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.persistence.*;
-import java.util.Date;
 
+/**
+ * Data model for photo meta-data
+ */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Entity
 @Table(name = "META_DATA")

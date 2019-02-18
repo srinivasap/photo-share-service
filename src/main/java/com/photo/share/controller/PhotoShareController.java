@@ -24,6 +24,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Photo share service rest controller.
+ */
 @RestController
 public class PhotoShareController {
 
@@ -32,6 +35,11 @@ public class PhotoShareController {
     @Autowired
     private PhotoShareService photoShareService;
 
+    /**
+     * Endpoint to  download photos
+     * @param uuid the photo uuid
+     * @return photo as stream
+     */
     @RequestMapping(
             value = "/photos/{uuid}",
             method = RequestMethod.GET,
@@ -52,6 +60,14 @@ public class PhotoShareController {
         return response;
     }
 
+    /**
+     * Endpoint to upload photos
+     * @param userid the user id as path parameter
+     * @param album the album title as path parameter
+     * @param images the images as multipart form data
+     * @param tags the header tags parameter
+     * @return the json response with photo download url
+     */
     @RequestMapping(
             value = "/photos/{userid}/{album}",
             method = RequestMethod.POST,
@@ -85,6 +101,12 @@ public class PhotoShareController {
         return response;
     }
 
+    /**
+     * Endpoint to delete photo
+     * @param userid the user id as path parameter
+     * @param uuid the photo uuid to be deleted
+     * @return return the status of delete operation
+     */
     @RequestMapping(
             value = "/photos/{userid}/{uuid}",
             method = RequestMethod.DELETE,
@@ -109,6 +131,11 @@ public class PhotoShareController {
         return response;
     }
 
+    /**
+     * Endpoint to search photos as tags
+     * @param tags the tags associated with photos
+     * @return return photos tagged with tags
+     */
     @RequestMapping(
             value = "/photos/search",
             method = RequestMethod.GET,

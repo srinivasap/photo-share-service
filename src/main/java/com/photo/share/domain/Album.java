@@ -7,8 +7,10 @@ import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
+/**
+ * Data model for Album type.
+ */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Entity
 @Table(name = "ALBUM")

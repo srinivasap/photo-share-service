@@ -2,13 +2,15 @@ package com.photo.share.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.hibernate.annotations.Cascade;
 
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+/**
+ * Data model for user entity type.
+ */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Entity
 @Table(name = "USER")

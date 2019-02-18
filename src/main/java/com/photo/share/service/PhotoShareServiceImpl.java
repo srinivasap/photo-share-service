@@ -25,6 +25,9 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayInputStream;
 import java.util.*;
 
+/**
+ * Implementation of PhotoShareService.
+ */
 @Service
 @ConfigurationProperties(prefix = "photo")
 public class PhotoShareServiceImpl implements PhotoShareService {
