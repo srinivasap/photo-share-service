@@ -5,8 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import java.util.Date;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Data model for photo entity type.
@@ -45,6 +44,9 @@ public class Photo {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "USER_ID")
     private User owner;
+
+    @JoinColumn(name = "LIKES")
+    private String likes;
 
     @Transient
     private String downloadUrl;
@@ -131,6 +133,24 @@ public class Photo {
     public void setDownloadUrl(String downloadUrl) {
         this.downloadUrl = downloadUrl;
     }
+
+    public String getLikes() {
+        return likes;
+    }
+
+    public void setLikes(String likes) {
+        this.likes = likes;
+    }
+
+    public void addToLikes(String userId) {
+       if (this.likes == null) {
+           this.likes = userId;
+           return;
+       }
+       this.likes += ","+userId;
+    }
+
+
 
     @Override
     public boolean equals(Object o) {

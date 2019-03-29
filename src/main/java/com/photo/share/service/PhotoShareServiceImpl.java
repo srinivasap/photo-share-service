@@ -53,10 +53,10 @@ public class PhotoShareServiceImpl implements PhotoShareService {
     private AlbumRepository albumRepository;
 
     @Override
-    public List<Photo> savePhotos(String userId, String album, List<Photo> photos, Map<String, String> customTags) throws UserAccountNotFoundException {
+    public List<Photo> savePhotos(User user, String album, List<Photo> photos, Map<String, String> customTags) throws UserAccountNotFoundException {
         List<Photo> savedPhotos = new ArrayList<>();
 
-        User user = fetchOrCreateOrUpdateUser(new User(userId, album));
+        User userE = userAlbumManagement(user, album);
         for (Photo photo : photos) {
             Photo photoE = savePhoto(user, album, photo, customTags);
             updateDownloadUrl(photoE);
@@ -102,17 +102,13 @@ public class PhotoShareServiceImpl implements PhotoShareService {
     }
 
     @Override
-    public void deletePhotoWithUUID(String userId, String uuid) throws UserAccountNotFoundException, PhotoNotFoundException, InvalidOperaiton {
-        User user = userRepository.findById(userId).orElse(null);
-        if (user == null) throw
-                new UserAccountNotFoundException("Invalid user id "+ userId);
-
+    public void deletePhotoWithUUID(User user, String uuid) throws PhotoNotFoundException, InvalidOperaiton {
         Photo photo = photoRepository.findById(uuid).orElse(null);
         if (photo == null)
             throw new PhotoNotFoundException("Can't delete a photo that doesn't exist "+ uuid);
 
         if (photo.getOwner() != user)
-            throw new InvalidOperaiton("Photo "+ uuid +" doesn't belong to user "+ userId +" to delete.");
+            throw new InvalidOperaiton("Photo "+ uuid +" doesn't belong to user "+ user.getUserId() +" to delete.");
 
         photoRepository.delete(photo);
     }
@@ -132,6 +128,34 @@ public class PhotoShareServiceImpl implements PhotoShareService {
         return photos;
     }
 
+    @Override
+    public Photo likePhoto(String uuid, String userId) throws PhotoNotFoundException, InvalidOperaiton {
+        Photo photo = photoRepository.findById(uuid).orElse(null);
+        if (photo == null)
+            throw new PhotoNotFoundException("Can't like a photo that doesn't exist "+ uuid);
+
+        if (photo.getOwner().getUserId() == userId)
+            throw new InvalidOperaiton("Owner can't like their own photo "+ userId +"");
+
+        photo.addToLikes(userId);
+        return photoRepository.save(photo);
+    }
+
+    private User userAlbumManagement(User userE, String albumTitle) {
+        // if creating new album for an existing user, update albums for user
+        Album album = albumRepository.findByTitle(albumTitle);
+        if(!userE.getAlbums().contains(album)) {
+            albumRepository.save(new Album(albumTitle, userE));
+        }
+
+        return userE;
+    }
+
+    private void updateDownloadUrl(Photo photo) {
+        photo.setDownloadUrl(host+context+photo.getUuid());
+    }
+
+    /*
     private User fetchOrCreateOrUpdateUser(User user) throws UserAccountNotFoundException {
         User userE = userRepository.findById(user.getUserId()).orElse(null);
         // if not existing uesr then create one
@@ -150,9 +174,7 @@ public class PhotoShareServiceImpl implements PhotoShareService {
 
         return userE;
     }
+    */
 
-    private void updateDownloadUrl(Photo photo) {
-        photo.setDownloadUrl(host+context+photo.getUuid());
-    }
 
 }

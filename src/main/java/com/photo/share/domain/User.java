@@ -20,7 +20,6 @@ public class User {
     @Column(name = "USER_ID")
     private String userId;
 
-    @JsonIgnore
     @Column(name = "EMAIL_ID")
     private String emailId;
 
@@ -30,11 +29,9 @@ public class User {
     @Column(name = "LAST_NAME")
     private String lastName;
 
-    @JsonIgnore
     @Column(name = "ADDRESS")
     private String address;
 
-    @JsonIgnore
     @Column(name = "PHONE_NUMBER")
     private String phoneNumber;
 
@@ -136,5 +133,13 @@ public class User {
     @Override
     public int hashCode() {
         return Objects.hash(getUserId());
+    }
+
+    public void update(User user) {
+        this.setAddress(user.getAddress());
+        this.setEmailId(user.getEmailId());
+        this.setFirstName(user.getFirstName());
+        this.setLastName(user.getLastName());
+        this.setPhoneNumber(user.getPhoneNumber());
     }
 }

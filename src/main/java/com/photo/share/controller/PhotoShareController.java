@@ -2,9 +2,11 @@ package com.photo.share.controller;
 
 import com.photo.share.domain.Message;
 import com.photo.share.domain.Photo;
+import com.photo.share.domain.User;
 import com.photo.share.exception.InvalidOperaiton;
 import com.photo.share.exception.PhotoNotFoundException;
 import com.photo.share.exception.UserAccountNotFoundException;
+import com.photo.share.service.AccountManagementService;
 import com.photo.share.service.PhotoShareService;
 import com.photo.share.util.Constants;
 import org.slf4j.Logger;
@@ -35,6 +37,11 @@ public class PhotoShareController {
     @Autowired
     private PhotoShareService photoShareService;
 
+
+    @Autowired
+    private AccountManagementService accountManagementService;
+
+
     /**
      * Endpoint to  download photos
      * @param uuid the photo uuid
@@ -60,6 +67,40 @@ public class PhotoShareController {
         return response;
     }
 
+
+    /**
+     * Endpoint to like photos
+     * @param uuid the photo uuid
+     * @return photo as stream
+     */
+    @RequestMapping(
+            value = "/photos/{uuid}/like",
+            method = RequestMethod.PUT,
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<?> likePhoto(
+            @PathVariable(name="uuid", required=true) String uuid,
+            @RequestBody User user) {
+        ResponseEntity<?> response = null;
+        try {
+            // retrieve user account, will proceed further only if exists
+            User userE = accountManagementService.retrieveUser(user.getUserId());
+
+            Photo photo = photoShareService.likePhoto(uuid, userE.getUserId());
+            response = new ResponseEntity<>(photo, HttpStatus.OK);
+
+        } catch (PhotoNotFoundException e) {
+            response = new ResponseEntity<>(new Message(Message.Status.ERROR, e.getMessage()), HttpStatus.NOT_FOUND);
+        } catch (UserAccountNotFoundException ue) {
+            response = new ResponseEntity<>(new Message(Message.Status.ERROR, ue.getMessage()), HttpStatus.NOT_FOUND);
+        } catch (InvalidOperaiton io) {
+            response = new ResponseEntity<>(new Message(Message.Status.ERROR, io.getMessage()), HttpStatus.BAD_REQUEST);
+        }
+
+        return response;
+    }
+
     /**
      * Endpoint to upload photos
      * @param userid the user id as path parameter
@@ -78,16 +119,19 @@ public class PhotoShareController {
             @PathVariable(name="userid", required=true) String userid,
             @PathVariable(name="album", required=false) String album,
             @RequestParam("images") MultipartFile[] images,
-            @RequestHeader("tags") String tags) {
+            @RequestHeader(value = "tags", required = false) String tags) {
         ResponseEntity<?> response = null;
 
         try {
+            // retrieve user account, will proceed further only if exists
+            User user = accountManagementService.retrieveUser(userid);
+
             Map<String, String> customTags = new HashMap<>();
             customTags.put(Constants.TAGS, tags);
 
             List<Photo> photosToSave = new ArrayList<>();
             for (MultipartFile image : images) photosToSave.add(new Photo(image.getOriginalFilename(), image.getBytes()));
-            List<Photo> photosSaved = photoShareService.savePhotos(userid, album, photosToSave, customTags);
+            List<Photo> photosSaved = photoShareService.savePhotos(user, album, photosToSave, customTags);
 
             response = new ResponseEntity<>(photosSaved, HttpStatus.OK);
         } catch (UserAccountNotFoundException ue) {
@@ -117,7 +161,10 @@ public class PhotoShareController {
         ResponseEntity<?> response = null;
 
         try {
-            photoShareService.deletePhotoWithUUID(userid, uuid);
+            // retrieve user account, will proceed further only if exists
+            User user = accountManagementService.retrieveUser(userid);
+
+            photoShareService.deletePhotoWithUUID(user, uuid);
             Message successMessage = new Message(Message.Status.ERROR, String.format(Constants.SUCCESS_MESSAGE_DELETE, uuid, userid));
             response = new ResponseEntity<>(successMessage, HttpStatus.OK);
         } catch (UserAccountNotFoundException ue) {
